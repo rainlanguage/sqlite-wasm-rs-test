@@ -99,7 +99,10 @@ unsafe extern "C" fn rain_math_process(
         context,
         result_cstring.as_ptr(),
         result_cstring.as_bytes().len() as c_int,
-        Some(std::mem::transmute::<isize, unsafe extern "C" fn(*mut std::ffi::c_void)>(-1isize)), // SQLITE_TRANSIENT
+        Some(std::mem::transmute::<
+            isize,
+            unsafe extern "C" fn(*mut std::ffi::c_void),
+        >(-1isize)), // SQLITE_TRANSIENT
     );
 }
 

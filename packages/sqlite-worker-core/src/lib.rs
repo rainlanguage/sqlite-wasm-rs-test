@@ -25,6 +25,5 @@ mod tests {
     wasm_bindgen_test_configure!(run_in_browser);
 
     #[wasm_bindgen_test]
-    fn worker_main_does_not_panic() {
-    }
+    fn worker_main_does_not_panic() {}
 }

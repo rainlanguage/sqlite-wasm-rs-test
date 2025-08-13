@@ -323,7 +323,7 @@ mod tests {
                 }
             }
 
-            let remaining_count = test_queries.len() - (test_queries.len() + 1) / 2;
+            let remaining_count = test_queries.len() - test_queries.len().div_ceil(2);
             assert_eq!(pending_queries.borrow().len(), remaining_count);
 
             pending_queries.borrow_mut().clear();

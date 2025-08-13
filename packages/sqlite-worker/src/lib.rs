@@ -262,8 +262,7 @@ mod tests {
         let result = SQLiteWasmDatabase::new();
 
         match result {
-            Ok(_db) => {
-            }
+            Ok(_db) => {}
             Err(e) => {
                 let error_msg = format!("{e:?}");
                 assert!(!error_msg.is_empty());
@@ -273,13 +272,11 @@ mod tests {
 
     #[wasm_bindgen_test]
     async fn test_query_message_format() {
-
         if let Ok(db) = SQLiteWasmDatabase::new() {
             let result = db.query("SELECT 1").await;
 
             match result {
-                Ok(_) => {
-                    }
+                Ok(_) => {}
                 Err(e) => {
                     let error_msg = format!("{e:?}");
                     assert!(!error_msg.is_empty());
@@ -294,8 +291,7 @@ mod tests {
         let db_error = SQLiteWasmDatabaseError::SerdeError(serde_error);
 
         match db_error {
-            SQLiteWasmDatabaseError::SerdeError(_) => {
-            }
+            SQLiteWasmDatabaseError::SerdeError(_) => {}
             _ => panic!("Expected SerdeError variant"),
         }
 

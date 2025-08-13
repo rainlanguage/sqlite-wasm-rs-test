@@ -2,9 +2,9 @@
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
     import init, { SQLiteWasmDatabase } from 'sqlite-worker';
-    
+
     let db: SQLiteWasmDatabase | undefined;
-    let users: any[] = $state([]);
+    let users: Array<{ id: number; name: string; email: string; created_at: string }> = $state([]);
     let newUserName = $state('');
     let newUserEmail = $state('');
     let status = $state('Initializing...');
@@ -12,13 +12,13 @@
 
     onMount(async () => {
         if (!browser) return;
-        
+
         try {
             status = 'Loading SQLite Worker...';
-            
+
             // Initialize the WASM module
             await init();
-            
+
             status = 'Creating database connection...';
             let res = SQLiteWasmDatabase.new();
             if (res.error) {
@@ -29,7 +29,7 @@
             status = 'Waiting for worker to be ready...';
             // Wait for worker to be ready
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
+
             status = 'Setting up database schema...';
             // Initialize schema
             await db.query(`
@@ -40,7 +40,7 @@
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             `);
-            
+
             // Load initial data
             await loadUsers();
             status = 'Ready ✅';
@@ -55,7 +55,7 @@
         try {
             isLoading = true;
             const result = await db.query('SELECT * FROM users ORDER BY created_at DESC');
-            users = JSON.parse(result.value);
+            users = JSON.parse(result.value || '[]');
         } catch (error) {
             console.error('Failed to load users:', error);
             status = `Load error: ${error instanceof Error ? error.message : 'Unknown error'}`;
@@ -66,18 +66,18 @@
 
     async function addUser() {
         if (!db || !newUserName.trim() || !newUserEmail.trim()) return;
-        
+
         try {
             isLoading = true;
             await db.query(`
                 INSERT OR IGNORE INTO users (name, email) 
                 VALUES ('${newUserName.trim()}', '${newUserEmail.trim()}')
             `);
-            
+
             // Clear form
             newUserName = '';
             newUserEmail = '';
-            
+
             // Reload users
             await loadUsers();
         } catch (error) {
@@ -124,20 +124,20 @@
         <div class="add-user">
             <h3>Add New User</h3>
             <div class="form-group">
-                <input 
-                    bind:value={newUserName} 
-                    placeholder="Full Name" 
+                <input
+                    bind:value={newUserName}
+                    placeholder="Full Name"
                     type="text"
                     disabled={isLoading}
                 />
-                <input 
-                    bind:value={newUserEmail} 
-                    placeholder="Email Address" 
+                <input
+                    bind:value={newUserEmail}
+                    placeholder="Email Address"
                     type="email"
                     disabled={isLoading}
                 />
-                <button 
-                    onclick={addUser} 
+                <button
+                    onclick={addUser}
                     disabled={isLoading || !newUserName.trim() || !newUserEmail.trim()}
                 >
                     {isLoading ? 'Adding...' : 'Add User'}
@@ -172,8 +172,8 @@
                             <span class="email">{user.email}</span>
                             <small class="date">{new Date(user.created_at).toLocaleString()}</small>
                         </div>
-                        <button 
-                            class="delete-btn" 
+                        <button
+                            class="delete-btn"
                             onclick={() => deleteUser(user.id)}
                             disabled={isLoading}
                         >
@@ -412,28 +412,6 @@
         border: 2px dashed #dee2e6;
     }
 
-    .info-box {
-        margin-top: 30px;
-        padding: 20px;
-        background: #e7f3ff;
-        border: 1px solid #b6d7ff;
-        border-radius: 8px;
-    }
-
-    .info-box h4 {
-        margin-top: 0;
-        color: #0056b3;
-    }
-
-    .info-box ul {
-        margin: 10px 0;
-        padding-left: 20px;
-    }
-
-    .info-box li {
-        margin: 5px 0;
-        color: #495057;
-    }
 
     .error-state, .loading-state {
         text-align: center;
@@ -477,17 +455,17 @@
         .form-group {
             flex-direction: column;
         }
-        
+
         .form-group input {
             min-width: unset;
         }
-        
+
         .user-card {
             flex-direction: column;
             gap: 10px;
             align-items: stretch;
         }
-        
+
         .users-header {
             flex-direction: column;
             gap: 10px;

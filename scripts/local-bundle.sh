@@ -122,9 +122,9 @@ cd ..
 # Update Svelte integration with fresh package
 echo "🔄 Updating Svelte integration..."
 cd svelte-test
-bun remove sqlite-worker
+npm remove sqlite-worker
 rm -rf node_modules
-bun add ../pkg/sqlite-worker-*.tgz
+npm install ../pkg/sqlite-worker-*.tgz
 cd ..
 
 echo ""

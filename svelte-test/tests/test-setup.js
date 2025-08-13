@@ -8,6 +8,7 @@ beforeEach(async () => {
 		try {
 			const opfsRoot = await navigator.storage.getDirectory();
 			// Remove any existing database files
+			// @ts-ignore - entries() method exists but may not be in all type definitions
 			for await (const [name, handle] of opfsRoot.entries()) {
 				if (name.includes('worker.db') || name.includes('sqlite')) {
 					await opfsRoot.removeEntry(name, { recursive: true });
@@ -15,7 +16,7 @@ beforeEach(async () => {
 			}
 		} catch (error) {
 			// OPFS might not be available or accessible
-			console.warn('Could not clean OPFS:', error.message);
+			console.warn('Could not clean OPFS:', error instanceof Error ? error.message : 'Unknown error');
 		}
 	}
 	

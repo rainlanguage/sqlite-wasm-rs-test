@@ -2,22 +2,22 @@
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
     import init, { SQLiteWasmDatabase } from 'sqlite-worker';
-    
+
     let db: SQLiteWasmDatabase | undefined;
     let sqlQuery = $state('SELECT * FROM users;');
-    let queryResult = $state<any[] | null>(null);
+    let queryResult = $state<Record<string, unknown>[] | null>(null);
     let status = $state('Initializing...');
     let isExecuting = $state(false);
     let errorMessage = $state('');
 
     onMount(async () => {
         if (!browser) return;
-        
+
         try {
             status = 'Loading SQLite Worker...';
-            
+
             await init();
-            
+
             status = 'Creating database connection...';
             let res = SQLiteWasmDatabase.new();
             if (res.error) {
@@ -25,10 +25,10 @@
                 return;
             }
             db = res.value;
-            
+
             status = 'Waiting for worker to be ready...';
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
+
             status = 'Setting up database schema...';
             await db.query(`
                 CREATE TABLE IF NOT EXISTS users (
@@ -38,7 +38,7 @@
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             `);
-            
+
             status = 'Ready ✅';
         } catch (error) {
             console.error('Database initialization failed:', error);
@@ -48,15 +48,15 @@
 
     async function executeQuery() {
         if (!db || !sqlQuery.trim()) return;
-        
+
         try {
             isExecuting = true;
             errorMessage = '';
-            
+
             const result = await db.query(sqlQuery.trim());
-            
+
             try {
-                queryResult = JSON.parse(result.value);
+                queryResult = JSON.parse(result.value || '[]');
             } catch {
                 queryResult = [{ result }];
             }
@@ -96,15 +96,15 @@
                     <button class="clear-btn" onclick={clearQuery}>Clear</button>
                 </div>
             </div>
-            
-            <textarea 
+
+            <textarea
                 bind:value={sqlQuery}
                 placeholder="Enter your SQL query here..."
                 rows="8"
                 disabled={isExecuting}
             ></textarea>
-            
-            <button 
+
+            <button
                 class="execute-btn"
                 onclick={executeQuery}
                 disabled={isExecuting || !sqlQuery.trim()}
@@ -123,12 +123,12 @@
         {#if queryResult !== null}
             <div class="results-section">
                 <h3>Query Results</h3>
-                
+
                 {#if Array.isArray(queryResult) && queryResult.length > 0}
                     <div class="results-info">
                         <span class="row-count">{queryResult.length} row{queryResult.length !== 1 ? 's' : ''} returned</span>
                     </div>
-                    
+
                     <div class="table-container">
                         <table>
                             <thead>
