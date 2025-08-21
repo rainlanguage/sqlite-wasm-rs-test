@@ -1,4 +1,4 @@
-import init, { SQLiteWasmDatabase } from 'sqlite-worker';
+import init, { SQLiteWasmDatabase } from 'sqlite-web';
 
 /**
  * Initialize a new SQLite database instance for testing

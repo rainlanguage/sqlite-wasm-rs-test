@@ -40,6 +40,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"sqlite-worker": "file:../pkg/sqlite-worker-0.1.0.tgz"
+		"sqlite-web": "file:../pkg/sqlite-web-0.1.0.tgz"
 	}
 }

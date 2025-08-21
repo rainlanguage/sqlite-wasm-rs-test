@@ -1,5 +1,5 @@
 /target
 /pkg
 # Generated files from bundle.sh
-packages/sqlite-worker/src/embedded_worker.js
-pkg/sqlite_worker_bg.wasm.b64
+packages/sqlite-web/src/embedded_worker.js
+pkg/sqlite_web_bg.wasm.b64

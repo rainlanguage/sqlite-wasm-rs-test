@@ -1,7 +1,10 @@
 [workspace]
 members = [
-    "packages/sqlite-worker-core",
-    "packages/sqlite-worker"
+    "packages/sqlite-web-core",
+    "packages/sqlite-web"
+]
+exclude = [
+    "lib/rain.math.float"
 ]
 resolver = "2"
 

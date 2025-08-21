@@ -5,11 +5,11 @@ import fs from 'fs';
 export default defineConfig({
 	plugins: [
 		{
-			name: 'sqlite-worker-serve',
+			name: 'sqlite-web-serve',
 			configureServer(server) {
 				server.middlewares.use('/pkg', (req, res, next) => {
 					const filePath = req.url?.substring(1);
-					const fullPath = path.join(process.cwd(), 'node_modules/sqlite-worker', filePath || '');
+					const fullPath = path.join(process.cwd(), 'node_modules/sqlite-web', filePath || '');
 					
 					if (fs.existsSync(fullPath)) {
 						if (fullPath.endsWith('.wasm')) {
@@ -76,7 +76,7 @@ export default defineConfig({
 		}
 	},
 	optimizeDeps: {
-		exclude: ['sqlite-worker']
+		exclude: ['sqlite-web']
 	},
 	assetsInclude: ['**/*.wasm'],
 	// Resolve configuration

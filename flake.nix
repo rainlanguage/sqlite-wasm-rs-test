@@ -15,10 +15,10 @@
             name = "test-wasm";
             body = ''
               set -euxo pipefail
-              cd packages/sqlite-worker-core
+              cd packages/sqlite-web-core
               wasm-pack test --headless --chrome
               cd ../..
-              cd packages/sqlite-worker
+              cd packages/sqlite-web
               wasm-pack test --headless --chrome
               cd ../..
             '';
@@ -28,10 +28,10 @@
             name = "build-wasm";
             body = ''
               set -euxo pipefail
-              cd packages/sqlite-worker-core
+              cd packages/sqlite-web-core
               wasm-pack build --target web --out-dir ../../pkg
               cd ../..
-              cd packages/sqlite-worker
+              cd packages/sqlite-web
               wasm-pack build --target web --out-dir ../../pkg
               cd ../..
             '';
@@ -56,6 +56,17 @@
             '';
           };
 
+          build-submodules = rainix.mkTask.${system} {
+            name = "build-submodules";
+            body = ''
+              set -euxo pipefail
+              rainix-sol-prelude
+              cd lib/rain.math.float
+              forge build
+              cd ../..
+            '';
+          };
+
           test-full-integration = rainix.mkTask.${system} {
             name = "test-full-integration";
             body = ''
@@ -68,7 +79,7 @@
 
         devShells.default = pkgs.mkShell {
           shellHook = rainix.devShells.${system}.default.shellHook;
-          packages = [ packages.test-wasm packages.build-wasm packages.local-bundle packages.test-ui packages.test-full-integration ];
+          packages = [ packages.test-wasm packages.build-wasm packages.local-bundle packages.test-ui packages.build-submodules packages.test-full-integration pkgs.wasm-pack ];
           inputsFrom = [ rainix.devShells.${system}.default ];
         };
       });

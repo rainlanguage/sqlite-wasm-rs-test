@@ -18,7 +18,7 @@ export default ts.config(
 			}
 		},
 		rules: {
-			'no-console': process.env.NODE_ENV === 'production' || process.env.CI ? 'error' : 'off',
+			'no-console': 'error',
 			'no-trailing-spaces': 'error'
 		}
 	},

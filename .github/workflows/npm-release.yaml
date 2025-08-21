@@ -1,0 +1,119 @@
+name: NPM Packages Release
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    if: ${{ github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'NPM Package Release') }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    outputs:
+      version: ${{ env.NEW_VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.PUBLISH_PRIVATE_KEY }}
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: DeterminateSystems/nix-installer-action@main
+        with:
+          determinate: true
+      - uses: DeterminateSystems/flakehub-cache-action@main
+
+      - name: Install NodeJS v22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - run: nix develop -c build-submodules
+      
+      - run: nix develop -c local-bundle
+
+      - name: Test full integration
+        run: nix develop -c test-full-integration
+
+      - name: Git Config
+        run: |
+          git config --global user.email "${{ secrets.CI_GIT_EMAIL }}"
+          git config --global user.name "${{ secrets.CI_GIT_USER }}"
+
+      # get hash of latest published pkgs from npm and concat them
+      - name: Get Old Hash
+        run: |
+          OLD_HASH=$(npm view @rainlanguage/sqlite-web@latest dist.shasum 2>/dev/null || echo "none")
+          echo "OLD_HASH=$OLD_HASH" >> $GITHUB_ENV
+          echo "old hash: $OLD_HASH"
+
+      # Build the package and calc hash
+      - name: Build and Get New Hash
+        run: |
+          nix develop -c local-bundle
+          NEW_HASH=$(cd pkg && npm pack --silent | xargs shasum | cut -c1-40)
+          echo "NEW_HASH=$NEW_HASH" >> $GITHUB_ENV
+          echo "new hash: $NEW_HASH"
+          rm -f pkg/*.tgz
+
+      # from here on, we'll skip if OLD_HASH and NEW_HASH are the same (ie no publish)
+      # this means we need to skip every step by using an if statement.
+      # set npm version in pkg directory
+      - name: Set Version
+        if: ${{ env.OLD_HASH != env.NEW_HASH }}
+        run: |
+          NEW_VERSION=$(npm version prerelease --preid alpha --no-git-tag-version)
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      # Commit changes and tag
+      - name: Commit And Tag
+        if: ${{ env.OLD_HASH != env.NEW_HASH }}
+        run: |
+          git add "pkg/package.json"
+          git commit -m "NPM Package Release v${{ env.NEW_VERSION }}"
+          git tag npm-v${{ env.NEW_VERSION }}
+
+      # Push the commit to remote
+      - name: Push Changes To Remote
+        if: ${{ env.OLD_HASH != env.NEW_HASH }}
+        run: |
+          git push origin
+          git push -u origin npm-v${{ env.NEW_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Create sqlite-web npm package tarball
+      - name: Create sqlite-web NPM Package Tarball
+        if: ${{ env.OLD_HASH != env.NEW_HASH }}
+        run: |
+          cd pkg
+          echo "NPM_PACKAGE=$(npm pack --silent)" >> $GITHUB_ENV
+
+      - name: Rename sqlite-web NPM Package Tarball
+        if: ${{ env.OLD_HASH != env.NEW_HASH }}
+        run: mv pkg/${{ env.NPM_PACKAGE }} sqlite_web_npm_package_${{ env.NEW_VERSION }}.tgz
+
+      # publish sqlite-web pkg to npm
+      - name: Publish sqlite-web pkg To NPM
+        if: ${{ env.OLD_HASH != env.NEW_HASH }}
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          access: public
+          package: sqlite_web_npm_package_${{ env.NEW_VERSION }}.tgz
+
+      # Create gitHub release with tarballs
+      - name: Create GitHub Release with sqlite-web pkg
+        if: ${{ env.OLD_HASH != env.NEW_HASH }}
+        id: gh_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: npm-v${{ env.NEW_VERSION }}
+          name: NPM Package Release v${{ env.NEW_VERSION }}
+          files: |
+            sqlite_web_npm_package_${{ env.NEW_VERSION }}.tgz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

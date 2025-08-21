@@ -6,19 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Main Build Process
 - `./bundle.sh` - Complete build pipeline that:
-  1. Builds `sqlite-worker-core` with `wasm-pack build --target web`
+  1. Builds `sqlite-web-core` with `wasm-pack build --target web`
   2. Embeds WASM into JavaScript worker template
-  3. Builds `sqlite-worker` package with embedded core
+  3. Builds `sqlite-web` package with embedded core
   4. Packages with `npm pack` and updates Svelte test integration
 
 ### Individual Package Builds
-- `cd packages/sqlite-worker-core && wasm-pack build --target web --out-dir ../../pkg`
-- `cd packages/sqlite-worker && wasm-pack build --target web --out-dir ../../pkg`
+- `cd packages/sqlite-web-core && wasm-pack build --target web --out-dir ../../pkg`
+- `cd packages/sqlite-web && wasm-pack build --target web --out-dir ../../pkg`
 
 ### Testing
 - `./test.sh` - Run all Rust WASM tests (both packages)
-- `cd packages/sqlite-worker-core && wasm-pack test --headless --chrome` - Test core package only
-- `cd packages/sqlite-worker && wasm-pack test --headless --chrome` - Test worker package only
+- `cd packages/sqlite-web-core && wasm-pack test --headless --chrome` - Test core package only
+- `cd packages/sqlite-web && wasm-pack test --headless --chrome` - Test worker package only
 
 ### Svelte Test App
 - `cd svelte-test && bun dev` - Start development server
@@ -31,7 +31,7 @@ This is a **Rust WebAssembly SQLite Worker** project with a workspace architectu
 
 ### Core Components
 
-#### 1. `packages/sqlite-worker-core/`
+#### 1. `packages/sqlite-web-core/`
 - **Purpose**: Core SQLite functionality and worker implementation
 - **Key modules**:
   - `worker.rs` - Main worker entry point called by `worker_main()`
@@ -42,7 +42,7 @@ This is a **Rust WebAssembly SQLite Worker** project with a workspace architectu
 - **Dependencies**: sqlite-wasm-rs, alloy (Ethereum tooling), rain-math-float
 - **Output**: WASM module with JS glue code
 
-#### 2. `packages/sqlite-worker/`
+#### 2. `packages/sqlite-web/`
 - **Purpose**: Public API that creates self-contained workers with embedded core
 - **Key files**:
   - `lib.rs` - `SQLiteWasmDatabase` struct with async query interface
@@ -59,13 +59,13 @@ This is a **Rust WebAssembly SQLite Worker** project with a workspace architectu
 #### 4. `svelte-test/`
 - **Purpose**: Integration test and example usage
 - **Technology**: SvelteKit + TypeScript + Vite
-- **Pattern**: Imports `sqlite-worker` package from local tarball
+- **Pattern**: Imports `sqlite-web` package from local tarball
 
 ### Build Process Flow
 
-1. **Core Build**: `sqlite-worker-core` compiled to WASM + JS glue
+1. **Core Build**: `sqlite-web-core` compiled to WASM + JS glue
 2. **Embedding**: WASM converted to base64 and embedded into JavaScript template
-3. **Wrapper Build**: `sqlite-worker` compiled with embedded worker generator
+3. **Wrapper Build**: `sqlite-web` compiled with embedded worker generator
 4. **Packaging**: NPM package created and integrated into Svelte test
 
 ### Key Design Patterns

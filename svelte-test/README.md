@@ -68,7 +68,7 @@ src/
 The project imports and uses the SQLite worker package:
 
 ```javascript
-import init, { DatabaseConnection } from 'sqlite-worker';
+import init, { DatabaseConnection } from 'sqlite-web';
 
 // Initialize WASM module
 await init();
@@ -82,7 +82,7 @@ const result = await db.query("SELECT * FROM users");
 
 ## Dependencies
 
-- **sqlite-worker** - Local WASM package from `../pkg/sqlite-worker-0.1.0.tgz`
+- **sqlite-web** - Local WASM package from `../pkg/sqlite-web-0.1.0.tgz`
 - **@sveltejs/kit** - SvelteKit framework
 - **vite** - Build tool and development server
 - **typescript** - Type checking and compilation

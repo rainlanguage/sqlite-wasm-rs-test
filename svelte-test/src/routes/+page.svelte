@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
-    import init, { SQLiteWasmDatabase } from 'sqlite-worker';
+    import init, { SQLiteWasmDatabase } from 'sqlite-web';
 
     let db: SQLiteWasmDatabase | undefined;
     let users: Array<{ id: number; name: string; email: string; created_at: string }> = $state([]);
@@ -45,7 +45,6 @@
             await loadUsers();
             status = 'Ready ✅';
         } catch (error) {
-            console.error('Database initialization failed:', error);
             status = `Failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
         }
     });
@@ -57,7 +56,6 @@
             const result = await db.query('SELECT * FROM users ORDER BY created_at DESC');
             users = JSON.parse(result.value || '[]');
         } catch (error) {
-            console.error('Failed to load users:', error);
             status = `Load error: ${error instanceof Error ? error.message : 'Unknown error'}`;
         } finally {
             isLoading = false;
@@ -81,7 +79,6 @@
             // Reload users
             await loadUsers();
         } catch (error) {
-            console.error('Failed to add user:', error);
             status = `Add error: ${error instanceof Error ? error.message : 'Unknown error'}`;
         } finally {
             isLoading = false;
@@ -95,7 +92,6 @@
             await db.query(`DELETE FROM users WHERE id = ${id}`);
             await loadUsers();
         } catch (error) {
-            console.error('Failed to delete user:', error);
             status = `Delete error: ${error instanceof Error ? error.message : 'Unknown error'}`;
         } finally {
             isLoading = false;
@@ -109,7 +105,7 @@
             await db.query('DELETE FROM users');
             await loadUsers();
         } catch (error) {
-            console.error('Failed to clear users:', error);
+            status = `Clear error: ${error instanceof Error ? error.message : 'Unknown error'}`;
         } finally {
             isLoading = false;
         }

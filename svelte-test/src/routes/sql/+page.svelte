@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
-    import init, { SQLiteWasmDatabase } from 'sqlite-worker';
+    import init, { SQLiteWasmDatabase } from 'sqlite-web';
 
     let db: SQLiteWasmDatabase | undefined;
     let sqlQuery = $state('SELECT * FROM users;');
@@ -41,7 +41,6 @@
 
             status = 'Ready ✅';
         } catch (error) {
-            console.error('Database initialization failed:', error);
             status = `Failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
         }
     });
@@ -61,7 +60,6 @@
                 queryResult = [{ result }];
             }
         } catch (error) {
-            console.error('Query execution failed:', error);
             errorMessage = error instanceof Error ? error.message : 'Unknown error';
             queryResult = null;
         } finally {

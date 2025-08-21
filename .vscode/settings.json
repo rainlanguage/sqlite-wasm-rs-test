@@ -5,8 +5,8 @@
     "rust-analyzer.cargo.target": "wasm32-unknown-unknown",
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml",
-        "./packages/sqlite-worker-core/Cargo.toml",
-        "./packages/sqlite-worker/Cargo.toml",
+        "./packages/sqlite-web-core/Cargo.toml",
+        "./packages/sqlite-web/Cargo.toml",
         "./lib/rain.math.float/Cargo.toml"
     ],
     "[rust]": {

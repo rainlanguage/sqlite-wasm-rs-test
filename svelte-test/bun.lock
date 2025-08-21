@@ -4,7 +4,7 @@
     "": {
       "name": "svelte-test",
       "dependencies": {
-        "sqlite-worker": "file:../pkg/sqlite-worker-0.1.0.tgz",
+        "sqlite-web": "file:../pkg/sqlite-web-0.1.0.tgz",
       },
       "devDependencies": {
         "@eslint/js": "^9.33.0",
@@ -490,7 +490,7 @@
 
     "source-map-js": ["source-map-js@1.2.1", "", {}, "sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA=="],
 
-    "sqlite-worker": ["sqlite-worker@../pkg/sqlite-worker-0.1.0.tgz", {}],
+    "sqlite-web": ["sqlite-web@../pkg/sqlite-web-0.1.0.tgz", {}],
 
     "stackback": ["stackback@0.0.2", "", {}, "sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw=="],
 
